@@ -19,7 +19,7 @@ Cette application web permet de gérer les candidatures pour différentes offres
 
 1. Cloner le dépôt :
 ```
-git clone <URL_du_repo>
+git clone https://github.com/Ratebah20/IA_CV.git
 cd IA_CV
 ```
 
@@ -34,11 +34,10 @@ venv\Scripts\activate  # Sur Windows
 pip install -r requirements.txt
 ```
 
-4. Créer un fichier `.env` à la racine du projet et y ajouter les variables d'environnement suivantes :
+4. Créer un fichier `.env` à la racine du projet en vous basant sur le fichier `.env.example` :
 ```
-SECRET_KEY=votre_cle_secrete_ici
+FLASK_APP=app
 OPENAI_API_KEY=votre_cle_api_openai_ici
-HR_PASSWORD=mot_de_passe_rh_ici
 ```
 
 ## Utilisation
@@ -70,6 +69,7 @@ IA_CV/
 ├── instance/                  # Données d'instance (base de données SQLite)
 ├── requirements.txt           # Dépendances Python
 ├── .env                       # Variables d'environnement (à créer)
+├── .env.example               # Exemple de fichier .env (sans données sensibles)
 └── run.py                     # Point d'entrée de l'application
 ```
 
@@ -77,12 +77,27 @@ IA_CV/
 
 - Flask : Framework web léger pour Python
 - SQLAlchemy : ORM pour la gestion de la base de données
-- OpenAI API : Pour l'analyse des CV
+- OpenAI API : Pour l'analyse des CV (utilise le modèle gpt-4o)
 - Bootstrap : Pour l'interface utilisateur
 - PyPDF2 : Pour l'extraction du texte des CV PDF
+- pdf2image : Pour la conversion des PDF en images
 
 ## Sécurité
 
-- Ne pas partager votre clé API OpenAI
-- Changer le mot de passe RH par défaut
-- Utiliser une clé secrète forte pour l'application
+- **IMPORTANT** : Ne jamais commiter le fichier `.env` contenant votre clé API OpenAI ou d'autres informations sensibles
+- Utilisez toujours le fichier `.env.example` comme modèle, sans inclure de vraies clés API
+- Si vous avez accidentellement commité des informations sensibles, utilisez `git filter-branch` pour les supprimer de l'historique
+- Vérifiez toujours vos commits avec `git diff --staged` avant de les valider
+
+## Notes de mise à jour
+
+- Le modèle OpenAI `gpt-4-vision-preview` a été déprécié et remplacé par `gpt-4o` qui intègre nativement les capacités de vision
+- L'application utilise désormais le modèle `gpt-4o` pour l'analyse des CV
+
+## Contribution
+
+Pour contribuer au projet :
+1. Créez une branche pour votre fonctionnalité (`git checkout -b feature/ma-fonctionnalite`)
+2. Committez vos changements (`git commit -m 'Ajout de ma fonctionnalite'`)
+3. Poussez vers la branche (`git push origin feature/ma-fonctionnalite`)
+4. Ouvrez une Pull Request
