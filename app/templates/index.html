@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenue - Portail de Recrutement{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">Rejoignez notre équipe !</h1>
+            <p class="lead">Découvrez nos opportunités de carrière et postulez en quelques clics.</p>
+            <hr class="my-4">
+            <p>Trouvez le poste qui correspond à vos compétences et à vos aspirations professionnelles.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2>Offres d'emploi disponibles</h2>
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    {% if jobs %}
+        {% for job in jobs %}
+            <div class="col-md-4">
+                <div class="card job-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ job.title }}</h5>
+                        <p class="card-text">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <a href="{{ url_for('candidate.apply', job_id=job.id) }}" class="btn btn-primary">Postuler</a>
+                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#jobModal{{ job.id }}">Détails</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal avec les détails du poste -->
+            <div class="modal fade" id="jobModal{{ job.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ job.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6>Description du poste:</h6>
+                            <p>{{ job.description }}</p>
+                            
+                            {% if job.requirements %}
+                            <h6>Compétences et qualifications requises:</h6>
+                            <p>{{ job.requirements }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            <a href="{{ url_for('candidate.apply', job_id=job.id) }}" class="btn btn-primary">Postuler</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                Aucune offre d'emploi n'est disponible pour le moment. Veuillez vérifier ultérieurement.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

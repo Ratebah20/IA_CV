@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des offres d'emploi{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="fas fa-briefcase me-2"></i>Gestion des offres d'emploi</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('hr.add_job') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle me-1"></i>Ajouter une offre
+        </a>
+        <a href="{{ url_for('hr.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Liste des offres d'emploi</h5>
+            </div>
+            <div class="card-body">
+                {% if jobs %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Statut</th>
+                                <th>Date de création</th>
+                                <th>Candidatures</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in jobs %}
+                            <tr>
+                                <td>{{ job.title }}</td>
+                                <td>
+                                    {% if job.is_active %}
+                                    <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ job.created_at.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <a href="{{ url_for('hr.applications', job_id=job.id) }}" class="btn btn-sm btn-info text-white">
+                                        {{ job.applications.count() }} candidature(s)
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('hr.edit_job', job_id=job.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#jobModal{{ job.id }}">
+                                        <i class="fas fa-eye"></i> Détails
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Aucune offre d'emploi n'a été créée. Cliquez sur "Ajouter une offre" pour commencer.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals pour les détails des offres -->
+{% for job in jobs %}
+<div class="modal fade" id="jobModal{{ job.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ job.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Description du poste:</h6>
+                <p>{{ job.description }}</p>
+                
+                {% if job.requirements %}
+                <h6>Compétences et qualifications requises:</h6>
+                <p>{{ job.requirements }}</p>
+                {% endif %}
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <p><strong>Créé le:</strong> {{ job.created_at.strftime('%d/%m/%Y à %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Statut:</strong> 
+                            {% if job.is_active %}
+                            <span class="badge bg-success">Actif</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactif</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('hr.edit_job', job_id=job.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

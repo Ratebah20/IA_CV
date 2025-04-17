@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des candidatures{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="fas fa-file-alt me-2"></i>Gestion des candidatures</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('hr.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Filtres</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('hr.applications') }}">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="job_id" class="form-label">Poste</label>
+                                <select name="job_id" id="job_id" class="form-select">
+                                    <option value="">Tous les postes</option>
+                                    {% for job in jobs %}
+                                    <option value="{{ job.id }}" {% if current_job_id == job.id %}selected{% endif %}>{{ job.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Statut</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="">Tous les statuts</option>
+                                    {% for status in ApplicationStatus %}
+                                    <option value="{{ status.name|lower }}" {% if current_status == status.name|lower %}selected{% endif %}>
+                                        {{ status.name|capitalize }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Liste des candidatures</h5>
+            </div>
+            <div class="card-body">
+                {% if applications %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Candidat</th>
+                                <th>Poste</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th>Score IA</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in applications %}
+                            <tr>
+                                {% set candidate = application.candidate %}
+                                <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
+                                <td>{{ application.job_position.title }}</td>
+                                <td>{{ application.created_at.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {% if application.status.name == 'SUBMITTED' %}
+                                    <span class="badge bg-primary">Soumise</span>
+                                    {% elif application.status.name == 'UNDER_REVIEW' %}
+                                    <span class="badge bg-info">En cours d'examen</span>
+                                    {% elif application.status.name == 'INTERVIEW' %}
+                                    <span class="badge bg-warning">Entretien</span>
+                                    {% elif application.status.name == 'REJECTED' %}
+                                    <span class="badge bg-danger">Rejetée</span>
+                                    {% elif application.status.name == 'ACCEPTED' %}
+                                    <span class="badge bg-success">Acceptée</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if application.ai_score %}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            {% if application.ai_score >= 70 %}
+                                            <span class="badge bg-success p-2">{{ application.ai_score }}%</span>
+                                            {% elif application.ai_score >= 50 %}
+                                            <span class="badge bg-info p-2">{{ application.ai_score }}%</span>
+                                            {% elif application.ai_score >= 30 %}
+                                            <span class="badge bg-warning p-2">{{ application.ai_score }}%</span>
+                                            {% else %}
+                                            <span class="badge bg-danger p-2">{{ application.ai_score }}%</span>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">
+                                            {% if application.ai_score >= 70 %}
+                                            Excellent
+                                            {% elif application.ai_score >= 50 %}
+                                            Bon
+                                            {% elif application.ai_score >= 30 %}
+                                            Moyen
+                                            {% else %}
+                                            Faible
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Non analysé</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('hr.view_application', application_id=application.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> Détails
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Aucune candidature ne correspond à vos critères de recherche.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

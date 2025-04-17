@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Candidature Soumise{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4 text-center">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-check-circle text-success" style="font-size: 72px;"></i>
+                <h2 class="mt-3">Votre candidature a été soumise avec succès !</h2>
+                <p class="lead">Merci d'avoir postulé au poste de {{ job.title }}.</p>
+                <hr>
+                <p>Notre équipe examinera votre candidature et vous contactera prochainement.</p>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

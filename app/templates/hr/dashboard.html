@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord RH{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Tableau de bord RH</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('hr.logout') }}" class="btn btn-outline-danger">
+            <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total des candidatures</h5>
+                <h2 class="display-4">{{ total_applications }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body text-center">
+                <h5 class="card-title">Nouvelles candidatures</h5>
+                <h2 class="display-4">{{ new_applications }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body text-center">
+                <h5 class="card-title">Postes actifs</h5>
+                <h2 class="display-4">{{ job_positions }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="{{ url_for('hr.applications') }}" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-list-alt me-2"></i>Voir toutes les candidatures
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('hr.add_job') }}" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="fas fa-plus-circle me-2"></i>Ajouter une offre d'emploi
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="{{ url_for('hr.job_positions') }}" class="btn btn-info btn-lg w-100 text-white">
+                            <i class="fas fa-briefcase me-2"></i>Gérer les offres d'emploi
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('hr.applications') }}?status=submitted" class="btn btn-warning btn-lg w-100 text-white">
+                            <i class="fas fa-hourglass-start me-2"></i>Nouvelles candidatures
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">À propos du système</h5>
+            </div>
+            <div class="card-body">
+                <p>Ce système utilise l'intelligence artificielle d'OpenAI pour analyser les CV des candidats et les comparer aux descriptions de poste.</p>
+                <p>Pour utiliser cette fonctionnalité, veillez à configurer votre clé API OpenAI dans le fichier d'environnement.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Vous pouvez lancer l'analyse manuelle d'un CV en consultant les détails d'une candidature.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
