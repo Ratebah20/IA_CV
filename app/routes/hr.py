@@ -26,6 +26,8 @@ def login():
     form = HrLoginForm()
     if form.validate_on_submit():
         hr_password = current_app.config['HR_PASSWORD']
+        print('DEBUG HR_PASSWORD attendu:', repr(hr_password))
+        print('DEBUG Mot de passe saisi:', repr(form.password.data))
         if form.password.data == hr_password:
             session['hr_logged_in'] = True
             flash('Connexion réussie.', 'success')

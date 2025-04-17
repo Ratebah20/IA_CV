@@ -8,4 +8,5 @@ def index():
     """Page d'accueil du site avec la liste des postes disponibles"""
     # Récupérer les postes actifs pour les afficher sur la page d'accueil
     active_jobs = JobPosition.query.filter_by(is_active=True).all()
-    return render_template('index.html', jobs=active_jobs)
+    from datetime import datetime
+    return render_template('index.html', jobs=active_jobs, year=datetime.now().year)

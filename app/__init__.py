@@ -1,13 +1,15 @@
 from flask import Flask
 import os
 from dotenv import load_dotenv
+import os
 from app.models.models import db
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     
     # Chargement des variables d'environnement
-    load_dotenv()
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    load_dotenv(dotenv_path)
     
     # Configuration
     app.config.from_mapping(
@@ -44,4 +46,9 @@ def create_app():
     with app.app_context():
         db.create_all()
     
+    from markupsafe import Markup, escape
+    def nl2br(value):
+        return Markup('<br>'.join(escape(value).split('\n')))
+    app.jinja_env.filters['nl2br'] = nl2br
+
     return app

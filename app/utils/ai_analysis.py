@@ -1,4 +1,3 @@
-import openai
 import os
 import base64
 import PyPDF2
@@ -6,6 +5,8 @@ from pdf2image import convert_from_path
 from PIL import Image
 import io
 import tempfile
+import requests
+import json
 from dotenv import load_dotenv
 
 # Chargement des variables d'environnement
@@ -99,9 +100,12 @@ def analyze_cv(cv_path, job_description, job_requirements):
     max_pages = min(5, len(pdf_images))  # Limiter à 5 pages maximum
     
     try:
-        # Préparer le client OpenAI
-        client = openai.OpenAI(api_key=api_key)
-        
+        # Utiliser les requêtes HTTP directes plutôt que le client OpenAI
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+
         # Construire le message avec les images du CV
         messages = [
             {"role": "system", "content": "Vous êtes un expert RH spécialisé dans l'analyse de CV."}
@@ -154,23 +158,43 @@ def analyze_cv(cv_path, job_description, job_requirements):
         [votre analyse détaillée]
         """})
         
-        # Appel à l'API Vision
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",  # Utiliser le modèle Vision
-            messages=messages,
-            max_tokens=1500,
-            temperature=0.2
+        # Préparer la payload pour l'API
+        payload = {
+            "model": "gpt-4o",  # Utilisation du nouveau modèle qui remplace gpt-4-vision-preview
+            "messages": messages,
+            "max_tokens": 1500,
+            "temperature": 0.2
+        }
+        
+        # Appel direct à l'API OpenAI
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=payload
         )
         
+        # Vérifier la réponse
+        if response.status_code != 200:
+            raise Exception(f"Erreur API OpenAI: {response.status_code} - {response.text}")
+            
         # Extraire la réponse
-        analysis = response.choices[0].message.content.strip()
+        response_data = response.json()
+        analysis = response_data["choices"][0]["message"]["content"].strip()
         
         # Extraire le score
         score = 0
         if "SCORE:" in analysis:
             try:
                 score_line = [line for line in analysis.split('\n') if "SCORE:" in line][0]
-                score = float(score_line.split("SCORE:")[1].strip().split()[0])
+                score_text = score_line.split("SCORE:")[1].strip().split()[0]
+                
+                # Extraire uniquement les chiffres avant tout caractère non numérique
+                import re
+                score_match = re.search(r'(\d+)', score_text)
+                if score_match:
+                    score = float(score_match.group(1))
+                else:
+                    score = 0
             except Exception as e:
                 print(f"Erreur lors de l'extraction du score: {e}")
                 score = 0
@@ -178,9 +202,10 @@ def analyze_cv(cv_path, job_description, job_requirements):
         return analysis, score
         
     except Exception as e:
+        import traceback
         error_message = f"Erreur lors de l'analyse du CV avec l'API Vision: {str(e)}"
         print(error_message)
-        
+        traceback.print_exc()
         # En cas d'échec, essayer la méthode classique
         print("Tentative d'analyse avec la méthode classique d'extraction de texte")
         cv_text = extract_text_from_pdf(cv_path)
@@ -223,33 +248,61 @@ def analyze_cv_with_text(cv_text, job_description, job_requirements, api_key):
     """
     
     try:
-        # Appel à l'API OpenAI
-        client = openai.OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
+        # Utiliser les requêtes HTTP directes
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+        
+        # Préparer la payload pour l'API
+        payload = {
+            "model": "gpt-3.5-turbo",
+            "messages": [
                 {"role": "system", "content": "Vous êtes un expert RH spécialisé dans l'analyse de CV."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=1000,
-            temperature=0.5
+            "max_tokens": 1000,
+            "temperature": 0.5
+        }
+        
+        # Appel direct à l'API OpenAI
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=payload
         )
         
+        # Vérifier la réponse
+        if response.status_code != 200:
+            raise Exception(f"Erreur API OpenAI: {response.status_code} - {response.text}")
+            
         # Extraire la réponse
-        analysis = response.choices[0].message.content.strip()
+        response_data = response.json()
+        analysis = response_data["choices"][0]["message"]["content"].strip()
         
         # Extraire le score
         score = 0
         if "SCORE:" in analysis:
             try:
                 score_line = [line for line in analysis.split('\n') if "SCORE:" in line][0]
-                score = float(score_line.split("SCORE:")[1].strip().split()[0])
-            except:
+                score_text = score_line.split("SCORE:")[1].strip().split()[0]
+                
+                # Extraire uniquement les chiffres avant tout caractère non numérique
+                import re
+                score_match = re.search(r'(\d+)', score_text)
+                if score_match:
+                    score = float(score_match.group(1))
+                else:
+                    score = 0
+            except Exception as e:
+                print(f"Erreur lors de l'extraction du score dans analyze_cv_with_text: {e}")
                 score = 0
         
         return analysis, score
         
     except Exception as e:
+        import traceback
         error_message = f"Erreur lors de l'analyse du CV avec l'API OpenAI: {str(e)}"
         print(error_message)
+        traceback.print_exc()
         return error_message, 0
