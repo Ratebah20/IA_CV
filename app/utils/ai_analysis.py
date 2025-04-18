@@ -8,6 +8,10 @@ import tempfile
 import requests
 import json
 from dotenv import load_dotenv
+import urllib3
+
+# Désactiver les avertissements liés à la désactivation de la vérification SSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Chargement des variables d'environnement
 load_dotenv()
@@ -24,9 +28,11 @@ def convert_pdf_to_images(pdf_path, dpi=300):
         list: Liste d'objets PIL Image
     """
     try:
-        # Utiliser pdf2image pour convertir le PDF en images
-        # Sous Windows, cela nécessite l'installation de poppler
-        images = convert_from_path(pdf_path, dpi=dpi)
+        # Chemin vers les binaires Poppler
+        poppler_path = r"C:\poppler\poppler-24.08.0\Library\bin"
+        
+        # Utiliser pdf2image pour convertir le PDF en images en spécifiant le chemin vers Poppler
+        images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
         return images
     except Exception as e:
         print(f"Erreur lors de la conversion du PDF en images: {e}")
@@ -166,11 +172,12 @@ def analyze_cv(cv_path, job_description, job_requirements):
             "temperature": 0.2
         }
         
-        # Appel direct à l'API OpenAI
+        # Appel direct à l'API OpenAI avec désactivation de la vérification SSL
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers=headers,
-            json=payload
+            json=payload,
+            verify=False  # Désactiver la vérification SSL
         )
         
         # Vérifier la réponse
@@ -265,11 +272,12 @@ def analyze_cv_with_text(cv_text, job_description, job_requirements, api_key):
             "temperature": 0.5
         }
         
-        # Appel direct à l'API OpenAI
+        # Appel direct à l'API OpenAI avec désactivation de la vérification SSL
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers=headers,
-            json=payload
+            json=payload,
+            verify=False  # Désactiver la vérification SSL
         )
         
         # Vérifier la réponse
