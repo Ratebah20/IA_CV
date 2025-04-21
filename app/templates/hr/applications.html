@@ -39,9 +39,9 @@
                                 <label for="status" class="form-label">Statut</label>
                                 <select name="status" id="status" class="form-select">
                                     <option value="">Tous les statuts</option>
-                                    {% for status in ApplicationStatus %}
-                                    <option value="{{ status.name|lower }}" {% if current_status == status.name|lower %}selected{% endif %}>
-                                        {{ status.name|capitalize }}
+                                    {% for status in statuses %}
+                                    <option value="{{ status.name }}" {% if current_status == status.name %}selected{% endif %}>
+                                        {{ status.display_name }}
                                     </option>
                                     {% endfor %}
                                 </select>
@@ -85,16 +85,18 @@
                                 <td>{{ application.job_position.title }}</td>
                                 <td>{{ application.created_at.strftime('%d/%m/%Y') }}</td>
                                 <td>
-                                    {% if application.status.name == 'SUBMITTED' %}
+                                    {% if application.status_id == ApplicationStatus.SUBMITTED %}
                                     <span class="badge bg-primary">Soumise</span>
-                                    {% elif application.status.name == 'UNDER_REVIEW' %}
+                                    {% elif application.status_id == ApplicationStatus.UNDER_REVIEW %}
                                     <span class="badge bg-info">En cours d'examen</span>
-                                    {% elif application.status.name == 'INTERVIEW' %}
+                                    {% elif application.status_id == ApplicationStatus.INTERVIEW %}
                                     <span class="badge bg-warning">Entretien</span>
-                                    {% elif application.status.name == 'REJECTED' %}
+                                    {% elif application.status_id == ApplicationStatus.REJECTED %}
                                     <span class="badge bg-danger">Rejetée</span>
-                                    {% elif application.status.name == 'ACCEPTED' %}
+                                    {% elif application.status_id == ApplicationStatus.ACCEPTED %}
                                     <span class="badge bg-success">Acceptée</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ application.status_name }}</span>
                                     {% endif %}
                                 </td>
                                 <td>

@@ -1,0 +1,46 @@
+127.0.0.1 - - [21/Apr/2025 01:19:40] "GET /manager/application/1013 HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request    rv = self.handle_user_exception(e)
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request    rv = self.dispatch_request()
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request     
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\IA_CV\app\auth\routes.py", line 26, in decorated_function
+    return f(*args, **kwargs)
+  File "C:\wamp64\www\ATS_CV\IA_CV\app\manager\routes.py", line 90, in view_application
+    return render_template('manager/application_detail.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\templating.py", line 151, in render_template    return _render(app, template, context)
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\templating.py", line 132, in _render        
+    rv = template.render(context)
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\jinja2\environment.py", line 1295, in render      
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\wamp64\www\ATS_CV\IA_CV\app\templates\manager\application_detail.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "C:\wamp64\www\ATS_CV\IA_CV\app\templates\base.html", line 111, in top-level template code      
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\IA_CV\app\templates\manager\application_detail.html", line 75, in block 'content'
+    <a href="{{ url_for('hr.download_cv', application_id=application.id) }}" class="btn btn-outline-primary">
+
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+
+  File "C:\wamp64\www\ATS_CV\.venv\Lib\site-packages\werkzeug\routing\map.py", line 950, in build      
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'hr.download_cv' with values ['application_id']. Did you mean 'hr.dashboard' instead?

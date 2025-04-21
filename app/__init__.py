@@ -4,6 +4,7 @@ import urllib.parse
 import pyodbc
 from dotenv import load_dotenv
 from sqlalchemy import event
+from flask_login import LoginManager
 
 from app.models.models import db
 
@@ -16,25 +17,30 @@ def create_app():
     
     # Construction de la chaîne de connexion SQL Server
     db_driver = os.environ.get('DB_DRIVER', 'SQL Server')
-    db_server = os.environ.get('DB_SERVER', '10.1.100.44')
+    db_server = os.environ.get('DB_SERVER', 'localhost')
     db_name = os.environ.get('DB_NAME', 'ATS_CV')
-    db_user = os.environ.get('DB_USER', 'olu_appli-admin')
-    db_password = os.environ.get('DB_PASSWORD', '')
+    db_windows_auth = os.environ.get('DB_WINDOWS_AUTH', 'yes')
     
-    # Encoder le mot de passe pour la chaîne de connexion
-    encoded_password = urllib.parse.quote_plus(db_password)
-    
-    # Chaîne de connexion ODBC avec le driver SQL Server natif et désactivation complète des vérifications SSL
-    # Utiliser le mot de passe encodé dans la chaîne de connexion
-    odbc_connection = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={encoded_password};TrustServerCertificate=yes;Encrypt=NO;"
-    # Alternative avec paramètres de connexion plus explicites
-    connection_string = f"mssql+pyodbc://{db_user}:{encoded_password}@{db_server}/{db_name}?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes&Encrypt=NO&trusted_connection=no"
+    # Chaîne de connexion ODBC avec le driver SQL Server natif et authentification Windows
+    if db_windows_auth.lower() == 'yes':
+        # Utiliser l'authentification Windows (trusted_connection=yes)
+        odbc_connection = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={db_server};DATABASE={db_name};Trusted_Connection=yes;TrustServerCertificate=yes;Encrypt=NO;"
+        connection_string = f"mssql+pyodbc://{db_server}/{db_name}?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes&Encrypt=NO&trusted_connection=yes&charset=latin1"
+    else:
+        # Utiliser l'authentification SQL Server si nécessaire
+        db_user = os.environ.get('DB_USER', 'sa')
+        db_password = os.environ.get('DB_PASSWORD', '')
+        encoded_password = urllib.parse.quote_plus(db_password)
+        odbc_connection = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={encoded_password};TrustServerCertificate=yes;Encrypt=NO;"
+        connection_string = f"mssql+pyodbc://{db_user}:{encoded_password}@{db_server}/{db_name}?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes&Encrypt=NO&trusted_connection=no&charset=latin1"
     
     # Configuration
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev_key_change_this'),
         SQLALCHEMY_DATABASE_URI=connection_string,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        # Activer le mode debug pour voir les requêtes SQL générées
+        #SQLALCHEMY_ECHO=True,
         SQLALCHEMY_ENGINE_OPTIONS={
             'fast_executemany': True,  # Amélioration des performances
             'connect_args': {
@@ -62,11 +68,31 @@ def create_app():
     # Initialisation de l'extension SQLAlchemy
     db.init_app(app)
     
+    # Initialisation de Flask-Login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    
+    # Initialisation des filtres personnalisés pour les templates
+    from app.utils import template_filters
+    template_filters.init_app(app)
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models.auth_models import User
+        return User.query.get(int(user_id))
+    
     # Enregistrement des blueprints
-    from app.routes import main, candidate, hr
+    from app.routes import main, candidate, hr, hr_interview
+    from app.auth import bp as auth_bp
+    from app.manager import bp as manager_bp
+    
     app.register_blueprint(main.bp)
     app.register_blueprint(candidate.bp)
     app.register_blueprint(hr.bp)
+    app.register_blueprint(hr_interview.bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(manager_bp, url_prefix='/manager')
     
     # Ne pas recréer les tables car elles existent déjà dans SQL Server
     # Les tables ont été créées avec le script SQL
@@ -91,9 +117,9 @@ def create_app():
             cursor.commit()
             
             # Indiquer au driver pyodbc de ne pas tenter de convertir les types de données automatiquement
-            dbapi_connection.setdecoding(pyodbc.SQL_CHAR, encoding='utf-8')
-            dbapi_connection.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
-            dbapi_connection.setencoding(encoding='utf-8')
+            dbapi_connection.setdecoding(pyodbc.SQL_CHAR, encoding='latin1')
+            dbapi_connection.setdecoding(pyodbc.SQL_WCHAR, encoding='latin1')
+            dbapi_connection.setencoding(encoding='latin1')
         
         # Au lieu de créer les tables, vérifier la connexion
         try:

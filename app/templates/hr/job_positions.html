@@ -30,6 +30,7 @@
                         <thead>
                             <tr>
                                 <th>Titre</th>
+                                <th>Département</th>
                                 <th>Statut</th>
                                 <th>Date de création</th>
                                 <th>Candidatures</th>
@@ -40,6 +41,7 @@
                             {% for job in jobs %}
                             <tr>
                                 <td>{{ job.title }}</td>
+                                <td>{{ job.department }}</td>
                                 <td>
                                     {% if job.is_active %}
                                     <span class="badge bg-success">Actif</span>

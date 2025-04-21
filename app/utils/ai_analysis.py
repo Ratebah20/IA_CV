@@ -28,12 +28,22 @@ def convert_pdf_to_images(pdf_path, dpi=300):
         list: Liste d'objets PIL Image
     """
     try:
-        # Chemin vers les binaires Poppler
-        poppler_path = r"C:\poppler\poppler-24.08.0\Library\bin"
-        
-        # Utiliser pdf2image pour convertir le PDF en images en spécifiant le chemin vers Poppler
-        images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
-        return images
+        # Essayer d'abord avec Poppler dans le PATH du système
+        try:
+            # Utiliser pdf2image sans spécifier le chemin Poppler (utilise le PATH système)
+            images = convert_from_path(pdf_path, dpi=dpi)
+            return images
+        except Exception as path_error:
+            print(f"Poppler non trouvé dans le PATH, tentative avec le chemin spécifique: {path_error}")
+            
+            # Chemin vers les binaires Poppler (chemin spécifique en fallback)
+            # Ancien chemin temporaire (commenté) : r"C:\poppler\poppler-24.08.0\Library\bin"
+            # Utiliser le chemin système
+            poppler_path = r"C:\Program Files\poppler\bin"
+            
+            # Utiliser pdf2image pour convertir le PDF en images en spécifiant le chemin vers Poppler
+            images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
+            return images
     except Exception as e:
         print(f"Erreur lors de la conversion du PDF en images: {e}")
         return []

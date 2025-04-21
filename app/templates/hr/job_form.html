@@ -62,6 +62,19 @@
                         <div class="form-text">Listez les compétences, qualifications et expérience requises pour ce poste.</div>
                     </div>
                     
+                    <div class="mb-3">
+                        {{ form.department.label(class="form-label") }}
+                        {{ form.department(class="form-control") }}
+                        {% if form.department.errors %}
+                            <div class="text-danger">
+                                {% for error in form.department.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Département auquel ce poste est rattaché. Important pour le filtrage par les managers.</div>
+                    </div>
+                    
                     <div class="mb-3 form-check">
                         {{ form.is_active(class="form-check-input") }}
                         {{ form.is_active.label(class="form-check-label") }}

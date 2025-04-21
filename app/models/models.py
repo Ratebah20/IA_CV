@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy.sql import text
+from sqlalchemy.sql import text, func
+from sqlalchemy import FetchedValue
 
 # Initialisation de l'extension SQLAlchemy
 db = SQLAlchemy()
@@ -42,7 +43,13 @@ class Candidate(db.Model):
     email = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Configuration pour que SQLAlchemy sache que updated_at est géré côté serveur
+    # server_default=func.getdate() pour INSERT
+    # server_onupdate=func.getdate() pour UPDATE
+    updated_at = db.Column(db.DateTime, 
+                          server_default=func.getdate(),
+                          server_onupdate=func.getdate(),
+                          nullable=False)
     
     # Relations
     applications = db.relationship('Application', backref='candidate', lazy='dynamic')
@@ -59,8 +66,16 @@ class JobPosition(db.Model):
     description = db.Column(db.Text, nullable=False)
     requirements = db.Column(db.Text, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
+    department = db.Column(db.String(50), nullable=False, default='General')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Configuration pour que SQLAlchemy sache que updated_at est géré côté serveur
+    # server_default=func.getdate() pour INSERT
+    # server_onupdate=func.getdate() pour UPDATE
+    # SQLAlchemy ne touchera pas cette colonne et rafraîchira sa valeur après le commit
+    updated_at = db.Column(db.DateTime, 
+                          server_default=func.getdate(),
+                          server_onupdate=func.getdate(),
+                          nullable=False)
     
     # Relations
     applications = db.relationship('Application', backref='job_position', lazy='dynamic')
@@ -83,7 +98,13 @@ class Application(db.Model):
     ai_analysis = db.Column(db.Text, nullable=True)
     ai_score = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Configuration pour que SQLAlchemy sache que updated_at est géré côté serveur
+    # server_default=func.getdate() pour INSERT
+    # server_onupdate=func.getdate() pour UPDATE
+    updated_at = db.Column(db.DateTime, 
+                          server_default=func.getdate(),
+                          server_onupdate=func.getdate(),
+                          nullable=False)
     
     @property
     def status(self):

@@ -49,9 +49,44 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.index') }}">Accueil</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('hr.login') }}">Espace RH</a>
-                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_hr() %}
+                            <!-- Menu RH -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="hrDropdown" role="button" data-bs-toggle="dropdown">
+                                    Espace RH
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('hr.dashboard') }}">Tableau de bord</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('hr.job_positions') }}">Offres d'emploi</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('hr.applications') }}">Candidatures</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('hr_interview.interview_requests') }}">Demandes d'entretien</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.register') }}">Nouvel utilisateur</a></li>
+                                </ul>
+                            </li>
+                        {% elif current_user.is_manager() %}
+                            <!-- Menu Manager -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="managerDropdown" role="button" data-bs-toggle="dropdown">
+                                    Espace Manager
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('manager.dashboard') }}">Tableau de bord</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('manager.applications') }}">Candidatures</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('manager.interview_requests') }}">Demandes d'entretien</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Déconnexion</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

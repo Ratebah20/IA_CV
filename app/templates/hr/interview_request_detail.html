@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Demande d'entretien</h1>
+        <a href="{{ url_for('hr_interview.interview_requests') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Retour aux demandes
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Informations sur la demande -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Détails de la demande</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong>Statut:</strong>
+                        {% if request.status == 'PENDING' %}
+                            <span class="badge bg-warning">En attente</span>
+                        {% elif request.status == 'APPROVED' %}
+                            <span class="badge bg-success">Approuvé</span>
+                        {% elif request.status == 'REFUSED' %}
+                            <span class="badge bg-danger">Refusé</span>
+                        {% elif request.status == 'COMPLETED' %}
+                            <span class="badge bg-info">Terminé</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Date demandée:</strong> {{ request.requested_date.strftime('%d/%m/%Y à %H:%M') }}</p>
+                    <p><strong>Demandé par:</strong> {{ manager.username }} ({{ manager.department }})</p>
+                    <p><strong>Date de la demande:</strong> {{ request.created_at.strftime('%d/%m/%Y') }}</p>
+                    
+                    {% if request.comments %}
+                        <div class="mt-3">
+                            <h6>Commentaires:</h6>
+                            <div class="card">
+                                <div class="card-body bg-light">
+                                    <p class="mb-0">{{ request.comments|nl2br }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if request.status == 'PENDING' %}
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between">
+                                <form method="POST" action="{{ url_for('hr_interview.update_interview_status', request_id=request.id) }}">
+                                    <input type="hidden" name="status" value="APPROVED">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Approuver
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('hr_interview.update_interview_status', request_id=request.id) }}">
+                                    <input type="hidden" name="status" value="REFUSED">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informations sur le candidat et le poste -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Candidature: {{ candidate.first_name }} {{ candidate.last_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informations du candidat</h6>
+                            <p><i class="fas fa-envelope"></i> {{ candidate.email }}</p>
+                            <p><i class="fas fa-phone"></i> {{ candidate.phone }}</p>
+                            <p><i class="fas fa-calendar-alt"></i> Candidature soumise le {{ application.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Poste: {{ job.title }}</h6>
+                            <p><i class="fas fa-building"></i> Département: {{ job.department }}</p>
+                            <p>
+                                <strong>Statut de la candidature:</strong>
+                                {% if application.status == 1 %}
+                                    <span class="badge bg-secondary">Soumise</span>
+                                {% elif application.status == 2 %}
+                                    <span class="badge bg-primary">En cours d'examen</span>
+                                {% elif application.status == 3 %}
+                                    <span class="badge bg-info">Entretien</span>
+                                {% elif application.status == 4 %}
+                                    <span class="badge bg-danger">Refusée</span>
+                                {% elif application.status == 5 %}
+                                    <span class="badge bg-success">Acceptée</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('hr.view_application', application_id=application.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-alt"></i> Voir la candidature complète
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Planification d'entretien -->
+    {% if request.status == 'PENDING' or request.status == 'APPROVED' %}
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Planifier l'entretien</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('hr_interview.schedule_interview', request_id=request.id) }}">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="interview_date" class="form-label">Date de l'entretien</label>
+                                <input type="date" class="form-control" id="interview_date" name="interview_date" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="interview_time" class="form-label">Heure de l'entretien</label>
+                                <input type="time" class="form-control" id="interview_time" name="interview_time" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="location" class="form-label">Lieu</label>
+                                <input type="text" class="form-control" id="location" name="location" placeholder="Salle de réunion, Zoom, etc." required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes pour l'entretien</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Informations supplémentaires pour l'entretien..."></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check"></i> Planifier l'entretien
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

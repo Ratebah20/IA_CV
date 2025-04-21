@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-between mb-4">
+        <div class="col-md-6">
+            <h1><i class="fas fa-tasks me-2"></i>Actions RH</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('hr.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Gestion des postes -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Gestion des postes</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gérez les offres d'emploi disponibles sur le portail de recrutement.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('hr.job_positions') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Liste des postes
+                        </a>
+                        <a href="{{ url_for('hr.add_job_position') }}" class="btn btn-outline-success">
+                            <i class="fas fa-plus me-1"></i>Ajouter un poste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion des candidatures -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Candidatures</h5>
+                </div>
+                <div class="card-body">
+                    <p>Consultez et gérez les candidatures reçues pour les différents postes.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('hr.applications') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Toutes les candidatures
+                        </a>
+                        <a href="{{ url_for('hr.applications') }}?filter=new" class="btn btn-outline-info">
+                            <i class="fas fa-bell me-1"></i>Nouvelles candidatures
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demandes d'entretien -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Entretiens</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gérez les demandes d'entretien envoyées par les managers de département.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('hr_interview.interview_requests') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Demandes d'entretien
+                        </a>
+                        <a href="{{ url_for('hr_interview.interview_requests') }}?filter=pending" class="btn btn-outline-warning">
+                            <i class="fas fa-clock me-1"></i>Demandes en attente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Gestion des utilisateurs -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Utilisateurs</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gérez les comptes utilisateurs pour les RH et les managers de département.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-1"></i>Ajouter un utilisateur
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <p>Consultez les statistiques de recrutement et les rapports d'analyse.</p>
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-outline-primary disabled">
+                            <i class="fas fa-chart-line me-1"></i>Tableau de bord analytique
+                            <span class="badge bg-info ms-1">Bientôt disponible</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

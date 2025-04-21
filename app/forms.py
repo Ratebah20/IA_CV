@@ -30,5 +30,6 @@ class JobPositionForm(FlaskForm):
     title = StringField('Titre du poste', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Description du poste', validators=[DataRequired()])
     requirements = TextAreaField('Exigences / Compétences requises')
+    department = SelectField('Département', validators=[DataRequired()])
     is_active = BooleanField('Poste actif')
     submit = SubmitField('Enregistrer')

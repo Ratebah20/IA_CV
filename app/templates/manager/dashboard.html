@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Tableau de bord Manager - {{ current_user.department }}</h1>
+    
+    <div class="row">
+        <!-- Statistiques -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Postes ouverts:</span>
+                        <span class="badge bg-primary rounded-pill">{{ jobs|length }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Candidatures:</span>
+                        <span class="badge bg-info rounded-pill">{{ applications|length }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Demandes d'entretien:</span>
+                        <span class="badge bg-warning rounded-pill">{{ interview_requests|length }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Postes ouverts -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Postes ouverts dans votre département</h5>
+                </div>
+                <div class="card-body">
+                    {% if jobs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Candidatures</th>
+                                        <th>Date de création</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for job in jobs %}
+                                    <tr>
+                                        <td>{{ job.title }}</td>
+                                        <td>
+                                            {% set count = applications|selectattr('job_position_id', 'equalto', job.id)|list|length %}
+                                            <span class="badge bg-info rounded-pill">{{ count }}</span>
+                                        </td>
+                                        <td>{{ job.created_at.strftime('%d/%m/%Y') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Aucun poste ouvert dans votre département actuellement.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Dernières candidatures -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Dernières candidatures</h5>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                        <div class="list-group">
+                            {% set recent_apps = applications|sort(attribute='created_at', reverse=True) %}
+                            {% for app in recent_apps[:5] %}
+                                <a href="{{ url_for('manager.view_application', application_id=app.id) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ app.candidate.first_name }} {{ app.candidate.last_name }}</h6>
+                                        <small>{{ app.created_at.strftime('%d/%m/%Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ app.job_position.title }}</p>
+                                    <small>Statut: {{ app.status_id|get_status_name }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('manager.applications') }}" class="btn btn-outline-primary btn-sm">Voir toutes les candidatures</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Aucune candidature pour votre département actuellement.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demandes d'entretien récentes -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Demandes d'entretien récentes</h5>
+                </div>
+                <div class="card-body">
+                    {% if interview_requests %}
+                        <div class="list-group">
+                            {% set recent_reqs = interview_requests|sort(attribute='created_at', reverse=True) %}
+                            {% for req in recent_reqs[:5] %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Demande d'entretien #{{ req.id }}</h6>
+                                        <small>{{ req.created_at.strftime('%d/%m/%Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">Date demandée: {{ req.requested_date.strftime('%d/%m/%Y %H:%M') }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small>Statut: 
+                                            {% if req.status == 'PENDING' %}
+                                                <span class="badge bg-warning">En attente</span>
+                                            {% elif req.status == 'APPROVED' %}
+                                                <span class="badge bg-success">Approuvé</span>
+                                            {% elif req.status == 'REFUSED' %}
+                                                <span class="badge bg-danger">Refusé</span>
+                                            {% elif req.status == 'COMPLETED' %}
+                                                <span class="badge bg-info">Terminé</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('manager.interview_requests') }}" class="btn btn-outline-primary btn-sm">Voir toutes les demandes</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Aucune demande d'entretien actuellement.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
