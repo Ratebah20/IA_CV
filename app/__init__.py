@@ -5,8 +5,11 @@ import pyodbc
 from dotenv import load_dotenv
 from sqlalchemy import event
 from flask_login import LoginManager
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 from app.models.models import db
+from app.api.config import configure_api
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -82,10 +85,23 @@ def create_app():
         from app.models.auth_models import User
         return User.query.get(int(user_id))
     
+    # Configuration de l'API REST - Doit être avant l'enregistrement des blueprints
+    CORS(app, 
+         resources={r"/api/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         expose_headers=["Content-Type", "Authorization"],
+         origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+         send_wildcard=False,
+         always_send=True)
+    jwt = configure_api(app)
+    
     # Enregistrement des blueprints
     from app.routes import main, candidate, hr, hr_interview
     from app.auth import bp as auth_bp
     from app.manager import bp as manager_bp
+    from app.api import api_bp
     
     app.register_blueprint(main.bp)
     app.register_blueprint(candidate.bp)
@@ -93,6 +109,7 @@ def create_app():
     app.register_blueprint(hr_interview.bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(manager_bp, url_prefix='/manager')
+    app.register_blueprint(api_bp)
     
     # Ne pas recréer les tables car elles existent déjà dans SQL Server
     # Les tables ont été créées avec le script SQL
