@@ -6,6 +6,7 @@ import json
 import traceback
 from .. import db
 from ..models.auth_models import User
+from ..models.models import Department
 from . import api_bp
 
 # Configurer le logger pour l'authentification
@@ -64,6 +65,13 @@ def login():
         auth_logger.error(f"Erreur lors du décodage du token: {str(e)}")
         auth_logger.debug(traceback.format_exc())
     
+    # Récupérer le nom du département si l'utilisateur a un département attribué
+    department_name = None
+    if user.department_id:
+        department = Department.query.get(user.department_id)
+        if department:
+            department_name = department.name
+
     return jsonify({
         'access_token': access_token,
         'refresh_token': refresh_token,
@@ -72,7 +80,8 @@ def login():
             'username': user.username,
             'email': user.email,
             'role_id': user.role_id,
-            'department': user.department,
+            'department_id': user.department_id,
+            'department_name': department_name,
             'is_hr': user.is_hr()
         }
     }), 200
@@ -160,11 +169,19 @@ def me():
     # Log pour le débogage
     current_app.logger.info(f"Utilisateur {user.username} récupéré avec succès")
     
+    # Récupérer le nom du département si l'utilisateur a un département attribué
+    department_name = None
+    if user.department_id:
+        department = Department.query.get(user.department_id)
+        if department:
+            department_name = department.name
+
     return jsonify({
         'id': user.id,
         'username': user.username,
         'email': user.email,
         'role_id': user.role_id,
-        'department': user.department,
+        'department_id': user.department_id,
+        'department_name': department_name,
         'is_hr': user.is_hr()
     }), 200

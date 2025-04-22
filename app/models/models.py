@@ -57,6 +57,29 @@ class Candidate(db.Model):
     def __repr__(self):
         return f'<Candidate {self.first_name} {self.last_name}>'
 
+class Department(db.Model):
+    """Modèle pour les départements"""
+    __tablename__ = 'Department'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, 
+                          server_default=func.getdate(),
+                          nullable=False)
+    updated_at = db.Column(db.DateTime, 
+                          server_default=func.getdate(),
+                          server_onupdate=func.getdate(),
+                          nullable=False)
+    
+    # Relations
+    job_positions = db.relationship('JobPosition', backref='department', lazy='dynamic')
+    users = db.relationship('User', backref='department', lazy='dynamic')
+    
+    def __repr__(self):
+        return f'<Department {self.name}>'
+
+
 class JobPosition(db.Model):
     """Modèle pour les offres d'emploi"""
     __tablename__ = 'JobPosition'
@@ -66,7 +89,7 @@ class JobPosition(db.Model):
     description = db.Column(db.Text, nullable=False)
     requirements = db.Column(db.Text, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    department = db.Column(db.String(50), nullable=False, default='General')
+    department_id = db.Column(db.Integer, db.ForeignKey('Department.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # Configuration pour que SQLAlchemy sache que updated_at est géré côté serveur
     # server_default=func.getdate() pour INSERT

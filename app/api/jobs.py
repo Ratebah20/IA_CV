@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .. import db
 from ..models.auth_models import User
-from ..models.models import JobPosition
+from ..models.models import JobPosition, Department, Application
 from . import api_bp
 
 @api_bp.route('/jobs', methods=['GET'])
@@ -12,14 +12,26 @@ def get_jobs():
     
     result = []
     for job in jobs:
+        # Récupérer le nom du département à partir de l'ID
+        department_name = "Non spécifié"
+        if job.department_id:
+            department = Department.query.get(job.department_id)
+            if department:
+                department_name = department.name
+        
+        # Compter le nombre de candidatures pour cette offre
+        application_count = Application.query.filter_by(job_position_id=job.id).count()
+        
         result.append({
             'id': job.id,
             'title': job.title,
             'description': job.description,
             'requirements': job.requirements,
-            'department': job.department,
+            'department_id': job.department_id,
+            'department_name': department_name,
             'created_at': job.created_at.strftime('%Y-%m-%d'),
-            'is_active': job.is_active
+            'is_active': job.is_active,
+            'application_count': application_count  # Ajouter le nombre de candidatures
         })
     
     return jsonify(result), 200
@@ -29,14 +41,26 @@ def get_job(job_id):
     """Récupérer une offre d'emploi spécifique"""
     job = JobPosition.query.get_or_404(job_id)
     
+    # Récupérer le nom du département à partir de l'ID
+    department_name = "Non spécifié"
+    if job.department_id:
+        department = Department.query.get(job.department_id)
+        if department:
+            department_name = department.name
+    
+    # Compter le nombre de candidatures pour cette offre
+    application_count = Application.query.filter_by(job_position_id=job.id).count()
+    
     return jsonify({
         'id': job.id,
         'title': job.title,
         'description': job.description,
         'requirements': job.requirements,
-        'department': job.department,
+        'department_id': job.department_id, 
+        'department_name': department_name,
         'created_at': job.created_at.strftime('%Y-%m-%d'),
-        'is_active': job.is_active
+        'is_active': job.is_active,
+        'application_count': application_count  # Ajouter le nombre de candidatures
     }), 200
 
 @api_bp.route('/jobs', methods=['POST'])
@@ -51,14 +75,19 @@ def create_job():
     
     data = request.get_json()
     
-    if not data or not data.get('title') or not data.get('description'):
-        return jsonify({'message': 'Données manquantes'}), 400
+    if not data or not data.get('title') or not data.get('description') or not data.get('department_id'):
+        return jsonify({'message': 'Données manquantes (titre, description, et department_id sont requis)'}), 400
+    
+    # Vérifier que le département existe
+    department = Department.query.get(data.get('department_id'))
+    if not department:
+        return jsonify({'message': 'Le département spécifié n\'existe pas'}), 404
     
     new_job = JobPosition(
         title=data.get('title'),
         description=data.get('description'),
         requirements=data.get('requirements', ''),
-        department=data.get('department', ''),
+        department_id=data.get('department_id'),
         is_active=data.get('is_active', True)
     )
     
@@ -92,8 +121,12 @@ def update_job(job_id):
             update_data['description'] = data.get('description')
         if data.get('requirements') is not None:
             update_data['requirements'] = data.get('requirements')
-        if data.get('department') is not None:
-            update_data['department'] = data.get('department')
+        if data.get('department_id') is not None:
+            # Vérifier que le département existe
+            department = Department.query.get(data.get('department_id'))
+            if not department:
+                return jsonify({'message': 'Le département spécifié n\'existe pas'}), 404
+            update_data['department_id'] = data.get('department_id')
         if data.get('is_active') is not None:
             update_data['is_active'] = data.get('is_active')
         
@@ -132,21 +165,28 @@ def delete_job(job_id):
     
     return jsonify({'message': 'Offre d\'emploi supprimée avec succès'}), 200
 
-@api_bp.route('/jobs/department/<department>', methods=['GET'])
-def get_jobs_by_department(department):
+@api_bp.route('/jobs/department/<int:department_id>', methods=['GET'])
+def get_jobs_by_department(department_id):
     """Récupérer les offres d'emploi par département"""
-    jobs = JobPosition.query.filter_by(department=department, is_active=True).all()
+    # Vérifier que le département existe
+    department = Department.query.get_or_404(department_id)
+    jobs = JobPosition.query.filter_by(department_id=department_id, is_active=True).all()
     
     result = []
     for job in jobs:
+        # Compter le nombre de candidatures pour cette offre
+        application_count = Application.query.filter_by(job_position_id=job.id).count()
+        
         result.append({
             'id': job.id,
             'title': job.title,
             'description': job.description,
             'requirements': job.requirements,
-            'department': job.department,
+            'department_id': job.department_id,
+            'department_name': department.name,  # Utiliser le nom du département récupéré précédemment
             'created_at': job.created_at.strftime('%Y-%m-%d'),
-            'is_active': job.is_active
+            'is_active': job.is_active,
+            'application_count': application_count  # Ajouter le nombre de candidatures
         })
     
     return jsonify(result), 200

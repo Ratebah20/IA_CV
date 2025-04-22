@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from .. import db
 from ..models.auth_models import User
-from ..models.models import JobPosition, Application, Candidate, ApplicationStatus
+from ..models.models import JobPosition, Application, Candidate, ApplicationStatus, Department
 from ..utils.ai_analysis import analyze_cv
 from . import api_bp
 
@@ -23,15 +23,25 @@ def get_applications():
     if user.is_hr():
         applications = Application.query.all()
     # Sinon, il ne voit que les candidatures pour son département
-    else:
-        job_positions = JobPosition.query.filter_by(department=user.department).all()
+    elif user.department_id:  # Vérifier que l'utilisateur a un département attribué
+        job_positions = JobPosition.query.filter_by(department_id=user.department_id).all()
         job_ids = [job.id for job in job_positions]
         applications = Application.query.filter(Application.job_position_id.in_(job_ids)).all()
+    else:
+        # Si l'utilisateur n'a pas de département, renvoyer une liste vide
+        applications = []
     
     result = []
     for app in applications:
         candidate = Candidate.query.get(app.candidate_id)
         job = JobPosition.query.get(app.job_position_id)
+        
+        # Récupérer le nom du département
+        department_name = "Non spécifié"
+        if job.department_id:
+            department = Department.query.get(job.department_id)
+            if department:
+                department_name = department.name
         
         result.append({
             'id': app.id,
@@ -45,7 +55,8 @@ def get_applications():
             'job': {
                 'id': job.id,
                 'title': job.title,
-                'department': job.department
+                'department_id': job.department_id,
+                'department_name': department_name
             },
             'status': app.status,
             'status_text': ApplicationStatus.get_name(app.status),
@@ -72,10 +83,17 @@ def get_application(application_id):
     job = JobPosition.query.get(application.job_position_id)
     
     # Vérifier les autorisations
-    if not user.is_hr() and job.department != user.department:
+    if not user.is_hr() and job.department_id != user.department_id:
         return jsonify({'message': 'Accès non autorisé'}), 403
     
     candidate = Candidate.query.get(application.candidate_id)
+    
+    # Récupérer le nom du département
+    department_name = "Non spécifié"
+    if job.department_id:
+        department = Department.query.get(job.department_id)
+        if department:
+            department_name = department.name
     
     return jsonify({
         'id': application.id,
@@ -91,7 +109,8 @@ def get_application(application_id):
             'title': job.title,
             'description': job.description,
             'requirements': job.requirements,
-            'department': job.department
+            'department_id': job.department_id,
+            'department_name': department_name
         },
         'status': application.status,
         'status_text': ApplicationStatus.get_name(application.status),
@@ -116,7 +135,7 @@ def update_application_status(application_id):
     job = JobPosition.query.get(application.job_position_id)
     
     # Vérifier les autorisations
-    if not user.is_hr() and job.department != user.department:
+    if not user.is_hr() and job.department_id != user.department_id:
         return jsonify({'message': 'Accès non autorisé'}), 403
     
     data = request.get_json()
@@ -227,6 +246,61 @@ def create_application():
         'application_id': application.id
     }), 201
 
+@api_bp.route('/applications/department/<int:department_id>', methods=['GET'])
+@jwt_required()
+def get_applications_by_department(department_id):
+    """Récupérer les candidatures pour un département spécifique"""
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'message': 'Utilisateur non trouvé'}), 404
+    
+    # Vérifier les autorisations : soit l'utilisateur est RH, soit il appartient au département demandé
+    if not user.is_hr() and user.department_id != department_id:
+        return jsonify({'message': 'Accès non autorisé'}), 403
+    
+    # Vérifier que le département existe
+    department = Department.query.get_or_404(department_id)
+    
+    # Récupérer toutes les offres d'emploi pour ce département
+    job_positions = JobPosition.query.filter_by(department_id=department_id).all()
+    job_ids = [job.id for job in job_positions]
+    
+    # Récupérer les candidatures pour ces offres
+    applications = Application.query.filter(Application.job_position_id.in_(job_ids)).all() if job_ids else []
+    
+    result = []
+    for app in applications:
+        candidate = Candidate.query.get(app.candidate_id)
+        job = JobPosition.query.get(app.job_position_id)
+        
+        result.append({
+            'id': app.id,
+            'candidate': {
+                'id': candidate.id,
+                'first_name': candidate.first_name,
+                'last_name': candidate.last_name,
+                'email': candidate.email,
+                'phone': candidate.phone
+            },
+            'job': {
+                'id': job.id,
+                'title': job.title,
+                'department_id': job.department_id,
+                'department_name': department.name
+            },
+            'status': app.status,
+            'status_text': ApplicationStatus.get_name(app.status),
+            'cover_letter': app.cover_letter,
+            'cv_filename': app.cv_filename,
+            'ai_analysis': app.ai_analysis,
+            'ai_score': app.ai_score,
+            'created_at': app.created_at.strftime('%Y-%m-%d')
+        })
+    
+    return jsonify(result), 200
+
 @api_bp.route('/applications/<int:application_id>/analyze', methods=['POST'])
 @jwt_required()
 def analyze_application_cv(application_id):
@@ -241,7 +315,7 @@ def analyze_application_cv(application_id):
     job = JobPosition.query.get(application.job_position_id)
     
     # Vérifier les autorisations
-    if not user.is_hr() and job.department != user.department:
+    if not user.is_hr() and job.department_id != user.department_id:
         return jsonify({'message': 'Accès non autorisé'}), 403
     
     # Vérifier que le CV existe

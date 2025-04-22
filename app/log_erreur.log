@@ -1,67 +1,67 @@
-127.0.0.1 - - [22/Apr/2025 01:18:04] "PUT /api/jobs/1002 HTTP/1.1" 500 -
-Traceback (most recent call last):
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 2213, in __call__   
-    return self.wsgi_app(environ, start_response)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 2193, in wsgi_app   
-    response = self.handle_exception(e)
-               ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask_cors\extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 2190, in wsgi_app   
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask_cors\extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask\app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\flask_jwt_extended\view_decorators.py", 
-line 170, in decorator
-    return current_app.ensure_sync(fn)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\wamp64\www\ATS_CV\IA_CV\app\api\jobs.py", line 97, in update_job
-    db.session.commit()
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\scoping.py", line 597, in commit
-    return self._proxied.commit()
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 2028, in commit
-    trans.commit(_to_root=True)
-  File "<string>", line 2, in commit
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
-    self._prepare_impl()
-  File "<string>", line 2, in _prepare_impl
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
-    self.session.flush()
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4352, in flush
-    self._flush(objects)
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4487, in _flush
-    with util.safe_reraise():
-         ^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4448, in _flush
-    flush_context.execute()
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
-    rec.execute(self)
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
-    util.preloaded.orm_persistence.save_obj(
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 85, in save_obj
-    _emit_update_statements(
-  File "C:\Users\tutii\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 948, in _emit_update_statements
-    raise orm_exc.StaleDataError(
-sqlalchemy.orm.exc.StaleDataError: UPDATE statement on table 'JobPosition' expected to update 1 row(s); -1 were matched.
+Token utilisé pour getCurrentUser: présent
+auth-service.ts:100 Headers pour getCurrentUser: 
+{headers: {…}, withCredentials: true}
+gestion-entretiens.tsx:34 Chargement des demandes d'entretien depuis l'API...
+auth-service.ts:97 Token utilisé pour getCurrentUser: présent
+auth-service.ts:100 Headers pour getCurrentUser: 
+{headers: {…}, withCredentials: true}
+gestion-entretiens.tsx:38 Réponse de l'API: 
+(6) [{…}, {…}, {…}, {…}, {…}, {…}]
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1007, candidate: {…}, comments: 'Lieu: Zoom\nNotes: dzqdqz\n\nCe candidat a un profil …rer pour discuter de ses compÃ©tences techniques.', created_at: '2025-04-21', id: 4, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1008, candidate: {…}, comments: 'Excellente candidate, entretien programmÃ© pour la semaine prochaine.', created_at: '2025-04-21', id: 5, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1011, candidate: {…}, comments: 'Entretien trÃ¨s positif, nous allons lui faire une offre.', created_at: '2025-04-21', id: 6, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1009, candidate: {…}, comments: 'Lieu: Zoom\nNotes: \n\nvseefes', created_at: '2025-04-20', id: 7, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1014, candidate: {…}, comments: "j'aime ce profil je veux un entretient", created_at: '2025-04-21', id: 8, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1017, candidate: {…}, comments: 'hjg', created_at: '2025-04-22', id: 9, …}
+gestion-entretiens.tsx:84 Données formatées pour l'affichage: 
+(6) [{…}, {…}, {…}, {…}, {…}, {…}]
+auth-service.ts:103 Réponse de getCurrentUser: 
+{department_id: 36, department_name: 'Direction Générale', email: 'admin@ats.com', id: 1, is_hr: true, …}
+auth-service.ts:103 Réponse de getCurrentUser: 
+{department_id: 36, department_name: 'Direction Générale', email: 'admin@ats.com', id: 1, is_hr: true, …}
+gestion-entretiens.tsx:38 Réponse de l'API: 
+(6) [{…}, {…}, {…}, {…}, {…}, {…}]
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1007, candidate: {…}, comments: 'Lieu: Zoom\nNotes: dzqdqz\n\nCe candidat a un profil …rer pour discuter de ses compÃ©tences techniques.', created_at: '2025-04-21', id: 4, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1008, candidate: {…}, comments: 'Excellente candidate, entretien programmÃ© pour la semaine prochaine.', created_at: '2025-04-21', id: 5, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1011, candidate: {…}, comments: 'Entretien trÃ¨s positif, nous allons lui faire une offre.', created_at: '2025-04-21', id: 6, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1009, candidate: {…}, comments: 'Lieu: Zoom\nNotes: \n\nvseefes', created_at: '2025-04-20', id: 7, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1014, candidate: {…}, comments: "j'aime ce profil je veux un entretient", created_at: '2025-04-21', id: 8, …}
+gestion-entretiens.tsx:42 Traitement de l'entretien: 
+{application_id: 1017, candidate: {…}, comments: 'hjg', created_at: '2025-04-22', id: 9, …}
+gestion-entretiens.tsx:84 Données formatées pour l'affichage: 
+(6) [{…}, {…}, {…}, {…}, {…}, {…}]
+0
+: 
+{id: 4, application_id: 1007, candidate_name: 'Candidat inconnu', job_title: 'DÃ©veloppeur Full Stack', department_name: 'Département non spécifié', …}
+1
+: 
+{id: 5, application_id: 1008, candidate_name: 'Candidat inconnu', job_title: 'Responsable Marketing Digital', department_name: 'Département non spécifié', …}
+2
+: 
+{id: 6, application_id: 1011, candidate_name: 'Candidat inconnu', job_title: 'Analyste Financier', department_name: 'Département non spécifié', …}
+3
+: 
+{id: 7, application_id: 1009, candidate_name: 'Candidat inconnu', job_title: 'IngÃ©nieur DevOps', department_name: 'Département non spécifié', …}
+4
+: 
+{id: 8, application_id: 1014, candidate_name: 'Candidat inconnu', job_title: 'DÃ©veloppeur Full Stack', department_name: 'Département non spécifié', …}
+5
+: 
+{id: 9, application_id: 1017, candidate_name: 'Candidat inconnu', job_title: 'IngÃ©nieur DevOps', department_name: 'Département non spécifié', …}
+length
+: 
+6
+[[Prototype]]
+: 
+Array(0)

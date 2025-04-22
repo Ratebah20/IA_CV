@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import bcrypt
 from app import db
 from sqlalchemy.sql import func
+from app.models.models import Department
 
 class Role(db.Model):
     """Modèle pour les rôles utilisateur"""
@@ -29,7 +30,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('Role.id'), nullable=False)
-    department = db.Column(db.String(50), nullable=True)
+    department_id = db.Column(db.Integer, db.ForeignKey('Department.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, 
                           server_default=func.getdate(),
