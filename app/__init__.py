@@ -134,9 +134,10 @@ def create_app():
             cursor.commit()
             
             # Indiquer au driver pyodbc de ne pas tenter de convertir les types de données automatiquement
-            dbapi_connection.setdecoding(pyodbc.SQL_CHAR, encoding='latin1')
-            dbapi_connection.setdecoding(pyodbc.SQL_WCHAR, encoding='latin1')
-            dbapi_connection.setencoding(encoding='latin1')
+            dbapi_connection.setdecoding(pyodbc.SQL_CHAR, encoding='utf-8')
+            dbapi_connection.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-16le')
+            dbapi_connection.setencoding(encoding='utf-8', ctype=pyodbc.SQL_CHAR)
+            dbapi_connection.setencoding(encoding='utf-16le', ctype=pyodbc.SQL_WCHAR)
         
         # Au lieu de créer les tables, vérifier la connexion
         try:
